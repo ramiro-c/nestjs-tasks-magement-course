@@ -1,5 +1,6 @@
 import { filter } from 'rxjs';
-import { EntityRepository, Repository } from 'typeorm';
+import { User } from 'src/auth/user.entity';
+import { Brackets, EntityRepository, Repository } from 'typeorm';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { GetTasksFilterDto } from './dto/get-tasks-filter.dto';
 import { TaskStatus } from './task-status.enum';
@@ -7,10 +8,11 @@ import { Task } from './task.entity';
 
 @EntityRepository(Task)
 export class TasksRepository extends Repository<Task> {
-  async createTask(createTaskDto: CreateTaskDto): Promise<Task> {
+  async createTask(createTaskDto: CreateTaskDto, user: User): Promise<Task> {
     const newTask: Task = this.create({
       status: TaskStatus.OPEN,
       ...createTaskDto,
+      user,
     });
 
     await this.save(newTask);
@@ -18,8 +20,9 @@ export class TasksRepository extends Repository<Task> {
     return newTask;
   }
 
-  async getTasks(filterDto: GetTasksFilterDto): Promise<Task[]> {
+  async getTasks(filterDto: GetTasksFilterDto, user: User): Promise<Task[]> {
     const query = this.createQueryBuilder('task');
+    query.where({ user });
 
     const { status, search } = filterDto;
     if (status) {
@@ -28,8 +31,11 @@ export class TasksRepository extends Repository<Task> {
 
     if (search) {
       query.andWhere(
-        '(LOWER(task.title) LIKE :search OR LOWER(task.description) LIKE :search)',
-        { search: `%${search.trim().toLowerCase()}%` },
+        new Brackets(qb => {
+          qb.where('title ILIKE :search OR description ILIKE :search', {
+            search: `%${search.trim()}%`,
+          });
+        }),
       );
     }
 
