@@ -1,4 +1,4 @@
-import { filter } from 'rxjs';
+import { InternalServerErrorException, Logger } from '@nestjs/common';
 import { User } from 'src/auth/user.entity';
 import { Brackets, EntityRepository, Repository } from 'typeorm';
 import { CreateTaskDto } from './dto/create-task.dto';
@@ -8,16 +8,28 @@ import { Task } from './task.entity';
 
 @EntityRepository(Task)
 export class TasksRepository extends Repository<Task> {
+  private readonly logger: Logger = new Logger(TasksRepository.name, {
+    timestamp: true,
+  });
+
   async createTask(createTaskDto: CreateTaskDto, user: User): Promise<Task> {
-    const newTask: Task = this.create({
-      status: TaskStatus.OPEN,
-      ...createTaskDto,
-      user,
-    });
+    try {
+      const newTask: Task = this.create({
+        status: TaskStatus.OPEN,
+        ...createTaskDto,
+        user,
+      });
 
-    await this.save(newTask);
+      await this.save(newTask);
 
-    return newTask;
+      return newTask;
+    } catch (e) {
+      this.logger.error(
+        `Error creating the task: ${JSON.stringify(createTaskDto)}`,
+        e.stack,
+      );
+      throw new InternalServerErrorException();
+    }
   }
 
   async getTasks(filterDto: GetTasksFilterDto, user: User): Promise<Task[]> {
@@ -38,7 +50,14 @@ export class TasksRepository extends Repository<Task> {
         }),
       );
     }
-
-    return await query.getMany();
+    try {
+      return await query.getMany();
+    } catch (e) {
+      this.logger.error(
+        `Error getting tasks with filters: ${JSON.stringify(filterDto)}`,
+        e.stack,
+      );
+      throw new InternalServerErrorException();
+    }
   }
 }

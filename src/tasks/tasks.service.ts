@@ -3,7 +3,6 @@ import { Task } from './task.entity';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { GetTasksFilterDto } from './dto/get-tasks-filter.dto';
 import { UpdateTaskStatusDto } from './dto/update-task-status.dto';
-import { TaskStatus } from './task-status.enum';
 import { TasksRepository } from './tasks.repository';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/auth/user.entity';
@@ -46,6 +45,7 @@ export class TasksService {
     let task = await this.getTaskById(id, user);
 
     task.status = updateTaskStatusDto.status;
+
     this.tasksRepository.save(task);
 
     return task;
