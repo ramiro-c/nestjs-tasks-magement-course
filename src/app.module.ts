@@ -14,10 +14,7 @@ import { configValidationSchema } from './config.schema';
       useFactory: async (config: ConfigService) => {
         const isProduction = config.get<string>('STAGE') === 'prod';
         return {
-          ssl: isProduction,
-          extras: {
-            ssl: isProduction ? { rejectUnauthorized: false } : null,
-          },
+          ssl: isProduction ? { rejectUnauthorized: false } : null,
           type: 'postgres',
           host: config.get<string>('DB_HOST'),
           port: config.get<number>('DB_PORT'),
@@ -25,7 +22,6 @@ import { configValidationSchema } from './config.schema';
           password: config.get<string>('DB_PASSWORD'),
           database: config.get<string>('DB_DATABASE'),
           autoLoadEntities: true,
-          synchronize: true,
         };
       },
       inject: [ConfigService],
