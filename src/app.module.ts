@@ -14,7 +14,7 @@ import { configValidationSchema } from './config.schema';
       useFactory: async (config: ConfigService) => {
         const isProduction = config.get<string>('STAGE') === 'prod';
         return {
-          url: config.get<string>('DB_PASSWORD'),
+          url: config.get<string>('DATABASE_URL'),
           ssl: isProduction ? { rejectUnauthorized: false } : null,
           type: 'postgres',
           host: config.get<string>('DB_HOST'),
