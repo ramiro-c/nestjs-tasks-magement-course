@@ -22,7 +22,6 @@ import { configValidationSchema } from './config.schema';
           password: config.get<string>('DB_PASSWORD'),
           database: config.get<string>('DB_DATABASE'),
           autoLoadEntities: true,
-          url: config.get<string>('DATABASE_URL'),
         };
       },
       inject: [ConfigService],
