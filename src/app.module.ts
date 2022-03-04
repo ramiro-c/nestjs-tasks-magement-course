@@ -14,10 +14,14 @@ import { configValidationSchema } from './config.schema';
       useFactory: async (config: ConfigService) => {
         const isProduction = config.get<string>('STAGE') === 'prod';
         return {
-          url: config.get<string>('DATABASE_URL'),
           ssl: isProduction ? { rejectUnauthorized: false } : null,
           type: 'postgres',
           entities: ['dist/**/*.entity{.ts,.js}'],
+          host: config.get<string>('DB_HOST'),
+          port: config.get<number>('DB_PORT'),
+          username: config.get<string>('DB_USERNAME'),
+          password: config.get<string>('DB_PASSWORD'),
+          database: config.get<string>('DB_DATABASE'),
         };
       },
       inject: [ConfigService],
