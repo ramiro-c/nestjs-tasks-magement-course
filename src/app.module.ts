@@ -17,13 +17,7 @@ import { configValidationSchema } from './config.schema';
           url: config.get<string>('DATABASE_URL'),
           ssl: isProduction ? { rejectUnauthorized: false } : null,
           type: 'postgres',
-          host: config.get<string>('DB_HOST'),
-          port: config.get<number>('DB_PORT'),
-          username: config.get<string>('DB_USERNAME'),
-          password: config.get<string>('DB_PASSWORD'),
-          database: config.get<string>('DB_DATABASE'),
           entities: ['dist/**/*.entity{.ts,.js}'],
-          autoLoadEntities: true,
         };
       },
       inject: [ConfigService],
